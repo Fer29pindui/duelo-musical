@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#121212">
+<title>Duelo musical · Demo</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header class="barra"><a class="marca" href="./">♫ Duelo musical</a><span class="etiqueta">Prototipo académico</span></header>
+<main>
+<section id="inicio">
+<div class="presentacion">
+<span class="categoria">RETOS MUSICALES ENTRE AMIGOS</span>
+<h1>Tu canción.<br>Su voto.<br><span>Un solo duelo.</span></h1>
+<p>Reúne a tus amigos, elige una canción para cada consigna y descubre quién tiene el mejor soundtrack.</p>
+<div class="reglas"><span>3–6 jugadores</span><span>3 rondas</span><span>30 s para votar</span></div>
+</div>
+<div class="panel">
+<h2>Que empiece la música</h2><p>Crea una sala o únete desde tu dispositivo.</p>
+<label for="sobrenombre">Tu sobrenombre</label><input id="sobrenombre" maxlength="20" placeholder="¿Cómo te llamamos?" autocomplete="nickname">
+<button id="crear" type="button" disabled>Crear una sala</button>
+<div class="separador">o entra con un código</div>
+<label for="codigo">Código de sala</label><input id="codigo" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters" spellcheck="false">
+<button id="unirse" class="secundario" type="button" disabled>Unirme al duelo</button>
+<p id="conexion" class="nota" role="status">Interfaz lista. Conexión pendiente.</p>
+</div>
+</section>
+<section id="juego" hidden>
+<div class="cabecera-juego"><div><span class="categoria">TU SALA</span><h2 id="codigo-sala"></h2></div><button id="salir" class="secundario compacto" type="button">Salir</button></div>
+<div class="panel"><p id="etapa" class="categoria"></p><h2 id="consigna"></h2><p id="instrucciones"></p><div id="temporizador" role="timer" aria-label="Tiempo restante"></div><div id="contenido"></div></div>
+<div class="panel"><h2>En la sala</h2><ul id="participantes" class="lista"></ul><button id="iniciar" type="button" hidden>Iniciar partida</button></div>
+</section>
+<p id="mensaje" role="alert"></p>
+</main>
+<footer>Demo académico de una función propuesta para Spotify. Sin afiliación oficial. Reproducción musical simulada.</footer>
+<script type="module" src="./app.js"></script>
+</body></html>
