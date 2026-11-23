@@ -31,13 +31,6 @@ const ETAPAS = {
 };
 let estado = null, codigoSala = "", listo = false, ocupado = false;
 let consultando = false, revisionVista = "", plazoLocal = null;
-function recuperar(clave, defecto) {
-  try { return JSON.parse(sessionStorage.getItem(clave)) ?? defecto; }
-  catch { return defecto; }
-}
-const mediciones = recuperar("duelo-mediciones-v2", []);
-const registrosImportados = recuperar("duelo-importados-v2", []);
-const resultadosCasos = recuperar("duelo-casos-v2", {});
 const cancionesOcupadas = new Set();
 let turnoOcupadas = "";
 const mensaje = (texto = "") => {
@@ -72,38 +65,20 @@ function actualizarBotones() {
 async function solicitar(accion, {
   codigo = codigoSala, valor = "", ronda = null, nombre = ""
 } = {}) {
-  const inicio = performance.now();
-  let correcta = false, detalle = "";
-  const salaMedida = codigo;
-  const jugadorMedido = estado?.participantes.find(p => p.soy_yo)?.nombre || nombre || "Este navegador";
-  try {
-    const {data,error} = await db.rpc("duelo", {
-      p_accion:accion,p_codigo:codigo,p_nombre:nombre,
-      p_valor:valor,p_ronda:ronda
-    });
-    if (error) throw error;
-    if (!data) throw new Error("El servidor no devolvió datos.");
-    if (data.codigo) aplicarEstado(data);
-    if (data.error) {
-      if (accion === "elegir" && data.error.includes("ya eligió esa canción")) {
-        cancionesOcupadas.add(valor); revisionVista = "";
-      }
-      throw new Error(data.error);
+  const {data,error} = await db.rpc("duelo", {
+    p_accion:accion,p_codigo:codigo,p_nombre:nombre,
+    p_valor:valor,p_ronda:ronda
+  });
+  if (error) throw error;
+  if (!data) throw new Error("El servidor no devolvió datos.");
+  if (data.codigo) aplicarEstado(data);
+  if (data.error) {
+    if (accion === "elegir" && data.error.includes("ya eligió esa canción")) {
+      cancionesOcupadas.add(valor); revisionVista = "";
     }
-    correcta = true;
-    return data;
-  } catch (error) {
-    detalle = error.message || "Error de conexión";
-    throw error;
-  } finally {
-    mediciones.push({
-      fecha:new Date().toISOString(),accion,aceptada:correcta,
-      sala:salaMedida || estado?.codigo || "", jugador:jugadorMedido,
-      ronda:ronda ?? estado?.ronda ?? 0, detalle,
-      duracion_ms:Number((performance.now()-inicio).toFixed(2))
-    });
-    guardarPanel(); actualizarPanel();
+    throw new Error(data.error);
   }
+  return data;
 }
 async function ejecutar(accion, opciones = {}) {
   if (ocupado) return;
@@ -259,8 +234,6 @@ function renderizar() {
         const puesto = 1+jugadores.filter(otro => otro.puntos>p.puntos).length;
         contenido.append(elemento("p",puesto+". "+p.nombre+" — "+p.puntos+" puntos"));
       }
-      contenido.append(boton("Ver panel de pruebas y tiempos",abrirPanel));
-      contenido.append(boton("Descargar respaldo JSON",descargar));
     }
   }
   actualizarBotones(); dibujarTiempo();
@@ -285,205 +258,6 @@ async function consultar() {
     mensaje("No se pudo actualizar: "+error.message+". Reintentando…");
   } finally { consultando = false; }
 }
-function descargar() {
-  const acciones = mediciones.filter(m => m.accion !== "consultar");
-  const promedio = acciones.length
-    ? acciones.reduce((s,m) => s+m.duracion_ms,0)/acciones.length : null;
-  const reporte = {
-    generado_en:new Date().toISOString(),sala:codigoSala,
-    alcance:"Tiempos de peticiones desde este navegador",
-    tiempo_promedio_acciones_ms:promedio === null?null:Number(promedio.toFixed(2)),
-    nota:"Una acción rechazada puede ser el resultado esperado de una prueba. Este registro no calcula el porcentaje de casos de prueba exitosos.",
-    mediciones
-  };
-  reporte.registros_importados = registrosImportados;
-  reporte.casos = resultadosCasos;
-  reporte.version = 2;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(reporte,null,2)],{type:"application/json"}));
-  const enlace = document.createElement("a");
-  enlace.href = url; enlace.download = "duelo-"+(codigoSala||"registro")+"-tiempos.json";
-  enlace.click(); setTimeout(() => URL.revokeObjectURL(url),1000);
-}
-
-// Panel local: no confundir rechazos de acciones con casos fallidos.
-const CASOS = [
-  ["CP01","Crear sala con sobrenombre válido","crear"],
-  ["CP02","Rechazar sobrenombre vacío","crear"],
-  ["CP03","Ingresar con código válido","ingresar"],
-  ["CP04","Rechazar código incorrecto","ingresar"],
-  ["CP05","Rechazar sobrenombre ocupado","ingresar"],
-  ["CP06","Impedir inicio con menos de 3 jugadores","iniciar"],
-  ["CP07","Iniciar con 3 jugadores y mostrar consigna","iniciar"],
-  ["CP08","Rechazar canción ocupada y explicar el motivo","seleccionar"],
-  ["CP09","Abrir votación cuando todos enviaron canción","votar"],
-  ["CP10","Impedir voto propio y duplicado, con explicación","votar"],
-  ["CP11","Cerrar antes del límite cuando todos votan","votar"],
-  ["CP12","Cerrar al vencer el plazo y rechazar votos tardíos","votar"],
-  ["CP13","Mostrar resultados 5 segundos y avanzar","avanzar"],
-  ["CP14","Verificar puntajes y empates tras 3 rondas","ranking"]
-];
-function guardarPanel() {
-  try {
-    // Mantener el último historial sin crecer indefinidamente.
-    if (mediciones.length > 10000) mediciones.splice(0, mediciones.length - 10000);
-    sessionStorage.setItem("duelo-mediciones-v2",JSON.stringify(mediciones));
-    sessionStorage.setItem("duelo-importados-v2",JSON.stringify(registrosImportados));
-    sessionStorage.setItem("duelo-casos-v2",JSON.stringify(resultadosCasos));
-  } catch { /* La visualización sigue disponible aunque se agote el almacenamiento. */ }
-}
-function abrirPanel() {
-  $("panel-calidad").hidden = false;
-  $("abrir-panel").setAttribute("aria-expanded","true");
-  actualizarPanel();
-  $("panel-calidad").scrollIntoView({behavior:"smooth",block:"start"});
-}
-function registrosDelPanel() {
-  const unicos = new Map();
-  for (const registro of [...mediciones,...registrosImportados]) {
-    if (!registro || typeof registro.accion !== "string" ||
-      typeof registro.duracion_ms !== "number" ||
-      !Number.isFinite(registro.duracion_ms) || registro.duracion_ms < 0 ||
-      typeof registro.fecha !== "string") continue;
-    const clave = JSON.stringify([registro.fecha,registro.accion,registro.duracion_ms]);
-    if (!unicos.has(clave)) unicos.set(clave,registro);
-  }
-  return [...unicos.values()].filter(r => r.accion !== "consultar");
-}
-function estadisticasTiempos(registros) {
-  return {
-    cantidad:registros.length,
-    promedio:registros.length ? registros.reduce((s,r) => s+r.duracion_ms,0)/registros.length : null,
-    aceptadas:registros.filter(r => r.aceptada === true).length,
-    rechazadas:registros.filter(r => r.aceptada === false).length
-  };
-}
-function resumenCasos() {
-  const ejecutados = CASOS.filter(([id]) => ["aprobada","fallida"].includes(resultadosCasos[id]?.estado));
-  const aprobados = ejecutados.filter(([id]) => resultadosCasos[id].estado === "aprobada").length;
-  return {
-    ejecutados:ejecutados.length,
-    pendientes:CASOS.length-ejecutados.length,
-    exito:ejecutados.length ? aprobados/ejecutados.length*100 : null,
-    error:ejecutados.length ? (ejecutados.length-aprobados)/ejecutados.length*100 : null,
-    cobertura:new Set(ejecutados.map(c => c[2])).size/7*100
-  };
-}
-const formatoMs = n => n === null ? "Sin datos" : n.toLocaleString("es",{maximumFractionDigits:1})+" ms";
-const formatoPorcentaje = n => n === null ? "Sin evaluar" : n.toFixed(1)+" %";
-function metrica(titulo,valor) {
-  const tarjeta = elemento("div",undefined,"metrica");
-  tarjeta.append(elemento("span",titulo),elemento("strong",String(valor)));
-  return tarjeta;
-}
-function tabla(encabezados,filas) {
-  const contenedor = elemento("div",undefined,"tabla-scroll");
-  const t = elemento("table");
-  const cabeza = elemento("thead"), fila = elemento("tr");
-  for (const titulo of encabezados) {
-    const th = elemento("th",titulo); th.scope = "col"; fila.append(th);
-  }
-  cabeza.append(fila); const cuerpo = elemento("tbody");
-  for (const valores of filas) {
-    const tr = elemento("tr");
-    for (const valor of valores) tr.append(elemento("td",String(valor)));
-    cuerpo.append(tr);
-  }
-  t.append(cabeza,cuerpo); contenedor.append(t); return contenedor;
-}
-function actualizarPanel() {
-  if ($("panel-calidad").hidden) return;
-  const registros = registrosDelPanel(), stats = estadisticasTiempos(registros);
-  const contenido = $("resumen-tiempos"); contenido.replaceChildren();
-  const tarjetas = elemento("div",undefined,"metricas");
-  tarjetas.append(metrica("Acciones medidas",stats.cantidad),
-    metrica("Respuesta promedio",formatoMs(stats.promedio)),
-    metrica("Aceptadas por el servidor",stats.aceptadas),
-    metrica("Rechazadas o con error",stats.rechazadas));
-  contenido.append(tarjetas,elemento("p","Tiempos de ida y vuelta medidos desde cada navegador. Se excluyen las consultas automáticas. Las esperas de votación no son latencia; los registros importados pueden pertenecer a varias partidas."));
-  const porJugador = new Map(), porAccion = new Map();
-  for (const r of registros) {
-    const jugador = r.jugador || r.fuente || "Este navegador";
-    const grupo = porJugador.get(jugador) || []; grupo.push(r); porJugador.set(jugador,grupo);
-    const acciones = porAccion.get(r.accion) || []; acciones.push(r); porAccion.set(r.accion,acciones);
-  }
-  contenido.append(elemento("h3","Tiempos por jugador / registro"));
-  if (!registros.length) contenido.append(elemento("p","Todavía no hay acciones medidas. Juega o importa los JSON de la prueba anterior."));
-  else {
-    contenido.append(tabla(["Jugador / registro","Acciones","Promedio","Aceptadas","Rechazadas / error"],
-      [...porJugador].map(([nombre,filas]) => {
-        const s = estadisticasTiempos(filas);
-        return [nombre,s.cantidad,formatoMs(s.promedio),s.aceptadas,s.rechazadas];
-      })));
-    contenido.append(elemento("h3","Respuesta promedio por acción"));
-    const valores = [...porAccion].map(([accion,filas]) => [accion,estadisticasTiempos(filas)]);
-    const maximo = Math.max(1,...valores.map(([,s]) => s.promedio));
-    for (const [accion,s] of valores) {
-      const fila = elemento("div",undefined,"barra-metrica");
-      fila.append(elemento("span",accion+" · "+formatoMs(s.promedio)+" · n="+s.cantidad));
-      const pista = elemento("div",undefined,"barra-pista"), barra = elemento("div",undefined,"barra-valor");
-      barra.style.width = Math.max(1,s.promedio/maximo*100)+"%"; pista.append(barra); fila.append(pista); contenido.append(fila);
-    }
-    contenido.append(elemento("h3","Últimas 20 acciones"),tabla(["Hora","Jugador / registro","Acción","Tiempo","Respuesta"],
-      registros.slice(-20).reverse().map(r => [r.fecha,r.jugador||r.fuente||"Este navegador",r.accion,
-        formatoMs(r.duracion_ms),r.aceptada===true?"Aceptada":r.detalle||"Rechazada / error"])));
-  }
-  const casos = resumenCasos(), resumen = $("resumen-casos"); resumen.replaceChildren();
-  const cifras = elemento("div",undefined,"metricas");
-  cifras.append(metrica("Casos ejecutados",casos.ejecutados+" / "+CASOS.length),
-    metrica("Pruebas exitosas",formatoPorcentaje(casos.exito)),
-    metrica("Tasa de error de pruebas",formatoPorcentaje(casos.error)),
-    metrica("Cobertura de 7 funciones",formatoPorcentaje(casos.cobertura)));
-  resumen.append(cifras,elemento("p",casos.pendientes+" casos pendientes. Resultados registrados manualmente; no es un reporte de ejecución automática de Playwright."));
-}
-function prepararCasos() {
-  for (const [id,titulo] of CASOS) {
-    const fila = elemento("div",undefined,"caso-prueba");
-    const label = elemento("label",id+" · "+titulo); label.htmlFor = "caso-"+id;
-    const selector = elemento("select"); selector.id = "caso-"+id;
-    for (const [valor,texto] of [["pendiente","Pendiente"],["aprobada","Aprobada"],["fallida","Fallida"]]) {
-      const opcion = elemento("option",texto); opcion.value = valor; selector.append(opcion);
-    }
-    selector.value = resultadosCasos[id]?.estado || "pendiente";
-    const notas = elemento("input"); notas.placeholder = "Observación o nombre de la evidencia";
-    notas.setAttribute("aria-label","Evidencia y observación de "+id);
-    notas.value = resultadosCasos[id]?.nota || "";
-    const guardar = () => {
-      resultadosCasos[id] = {estado:selector.value,nota:notas.value}; guardarPanel(); actualizarPanel();
-    };
-    selector.addEventListener("change",guardar); notas.addEventListener("input",guardar);
-    fila.append(label,selector,notas); $("casos-prueba").append(fila);
-  }
-}
-$("abrir-panel").addEventListener("click",() => {
-  if ($("panel-calidad").hidden) abrirPanel();
-  else { $("panel-calidad").hidden = true; $("abrir-panel").setAttribute("aria-expanded","false"); }
-});
-$("exportar-panel").addEventListener("click",descargar);
-$("imprimir-panel").addEventListener("click",() => window.print());
-$("importar-registros").addEventListener("change",async evento => {
-  let agregados = 0; const errores = [];
-  for (const archivo of evento.target.files) {
-    try {
-      if (archivo.size > 5000000) throw new Error("el archivo supera 5 MB");
-      const reporte = JSON.parse(await archivo.text());
-      if (!Array.isArray(reporte.mediciones)) throw new Error("no contiene mediciones del demo");
-      const fuente = archivo.name.replace(/\.json$/i,"");
-      const entrada = [...reporte.mediciones,...(Array.isArray(reporte.registros_importados)?reporte.registros_importados:[])];
-      const validos = entrada.filter(r => r && typeof r.accion === "string" &&
-        typeof r.fecha === "string" && typeof r.duracion_ms === "number" &&
-        Number.isFinite(r.duracion_ms) && r.duracion_ms >= 0 && typeof r.aceptada === "boolean");
-      if (!validos.length) throw new Error("no contiene mediciones válidas");
-      if (registrosImportados.length+validos.length > 20000) throw new Error("límite de registros importados alcanzado");
-      for (const r of validos) {
-        const duplicado = [...mediciones,...registrosImportados].some(m => m.fecha === r.fecha && m.accion === r.accion && m.duracion_ms === r.duracion_ms);
-        if (!duplicado) { registrosImportados.push({...r,fuente:r.fuente||fuente}); agregados++; }
-      }
-    } catch (error) { errores.push(archivo.name+": "+error.message); }
-  }
-  guardarPanel(); actualizarPanel(); evento.target.value = "";
-  $("importacion-estado").textContent = agregados+" mediciones agregadas; se omitieron duplicados. "+errores.join(" · ");
-});
-prepararCasos();
 $("crear").addEventListener("click",() => ejecutar("crear",{nombre:$("sobrenombre").value.trim()}));
 $("unirse").addEventListener("click",() => ejecutar("unirse",{
   codigo:$("codigo").value.trim().toUpperCase(),nombre:$("sobrenombre").value.trim()
