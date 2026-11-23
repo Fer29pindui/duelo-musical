@@ -33,15 +33,3 @@ footer{max-width:900px;margin:45px auto 25px;padding:0 24px;color:#aaa;text-alig
 button[aria-disabled="true"]{opacity:.65;cursor:not-allowed;background:#373d38;color:#eee}
 .aviso-regla{padding:12px;border-left:3px solid #f0bd79;background:#2d291f;color:#f5d8ae!important;border-radius:4px;font-size:14px!important}
 #mensaje:not([hidden]){position:fixed;z-index:20;bottom:20px;left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 32px));margin:0;padding:18px 22px;background:#3c2920;color:#ffdfc7;border:1px solid #f0bd79;border-radius:14px;box-shadow:0 8px 30px #0009;max-height:30vh;overflow:auto}
-#abrir-panel{margin:20px 0}#panel-calidad{scroll-margin-top:24px}
-.metricas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
-.metrica{background:#171a17;border:1px solid #444b44;border-radius:12px;padding:18px;overflow-wrap:anywhere}
-.metrica span{display:block;color:#b3b3b3;font-size:13px;margin-bottom:12px}.metrica strong{font-size:26px;color:var(--verde)}
-.tabla-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;border-bottom:1px solid #414541;padding:12px;overflow-wrap:anywhere}th{color:var(--verde)}
-.barra-metrica{margin:16px 0}.barra-pista{background:#393e39;height:12px;border-radius:8px;margin-top:8px;overflow:hidden}.barra-valor{background:var(--verde);height:100%;border-radius:8px}
-.caso-prueba{border-top:1px solid #414541;padding:16px 0;display:grid;grid-template-columns:1fr 150px;gap:10px;align-items:center}.caso-prueba label{margin:0;line-height:1.5}.caso-prueba input{grid-column:1 / -1}select{padding:12px;background:#151715;color:#f4f4f0;border:1px solid #626762;border-radius:8px;font:inherit}
-.panel-acciones{display:flex;gap:14px}#importar-registros{white-space:normal}
-@media(max-width:760px){.metricas{grid-template-columns:repeat(2,minmax(0,1fr))}.panel-acciones{flex-direction:column}}
-@media(max-width:480px){.caso-prueba{grid-template-columns:1fr}.metrica strong{font-size:21px}}
-@media print{body{background:white;color:black}.barra,#inicio,#juego,#abrir-panel,footer,#mensaje,.panel-acciones,#importar-registros,label[for="importar-registros"]{display:none!important}#panel-calidad{display:block!important;border:0;background:white}.metricas,.metrica,.caso-prueba{break-inside:avoid}.metrica,select,input{background:white!important;color:black!important}.metrica strong,th,.categoria{color:#16532c}p,.metrica span{color:#333}th,td{color:black}.tabla-scroll{overflow:visible}main{margin:0;padding:0}.panel{padding:0}.barra-valor{print-color-adjust:exact}}
-
