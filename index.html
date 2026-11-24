@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#121212">
 <title>Duelo musical · Demo</title>
-<link rel="stylesheet" href="./styles.css?v=3">
+<link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body>
 <header class="barra"><a class="marca" href="./">♫ Duelo musical</a><span class="etiqueta">Prototipo académico</span></header>
@@ -30,10 +30,11 @@
 <section id="juego" hidden>
 <div class="cabecera-juego"><div><span class="categoria">TU SALA</span><h2 id="codigo-sala"></h2></div><button id="salir" class="secundario compacto" type="button">Salir</button></div>
 <div class="panel"><p id="etapa" class="categoria"></p><h2 id="consigna"></h2><p id="instrucciones"></p><div id="temporizador" role="timer" aria-label="Tiempo restante"></div><div id="contenido"></div></div>
+<section id="musica-final" class="panel" hidden aria-label="Música de los ganadores"></section>
 <div class="panel"><h2>En la sala</h2><ul id="participantes" class="lista"></ul><button id="iniciar" type="button" hidden>Iniciar partida</button></div>
 </section>
 <p id="mensaje" role="alert" tabindex="-1" hidden></p>
 </main>
-<footer>Demo académico de una función propuesta para Spotify. Sin afiliación oficial. Reproducción musical simulada.</footer>
-<script type="module" src="./app.js?v=3"></script>
+<footer>Demo académico de una función propuesta para Spotify. Sin afiliación oficial. Música mediante reproductores de YouTube.</footer>
+<script type="module" src="./app.js?v=4"></script>
 </body></html>
