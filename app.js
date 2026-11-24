@@ -33,6 +33,80 @@ let estado = null, codigoSala = "", listo = false, ocupado = false;
 let consultando = false, revisionVista = "", plazoLocal = null;
 const cancionesOcupadas = new Set();
 let turnoOcupadas = "";
+const VIDEOS = {c01:"YXnjy5YlDwk",c02:"7zp1TbLFPp8",c03:"JRfuAukYTKg",c04:"HgzGwKwLmgM",c05:"t8pjh1URlXs",c06:"VPRjCeoBqrI",c07:"4NRXx6U8ABQ",c08:"gGdGFtwCNBE",c09:"aZx5zfkG6oU",c10:"IcrbM1l_BoI",c11:"VBiNZcH27Y8",c12:"hReAuaAuJOE"};
+let musicaClave = "";
+const celebradas = new Set();
+
+function limpiarFinal() {
+  $("musica-final").replaceChildren(); $("musica-final").hidden = true;
+  musicaClave = "";
+}
+function celebrar(ganadores) {
+  if (!ganadores.some(p => p.soy_yo) || celebradas.has(estado.codigo)) return;
+  celebradas.add(estado.codigo);
+  const clave = "duelo-celebrado:" + estado.codigo;
+  if (sessionStorage.getItem(clave)) return;
+  sessionStorage.setItem(clave,"1");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const capa = elemento("div",undefined,"confeti");
+  capa.setAttribute("aria-hidden","true");
+  for (let i = 0; i < 70; i++) {
+    const papel = elemento("i");
+    papel.style.cssText = `left:${Math.random()*100}%;background:${["#1ed760","#f3ca65","#faf5dc"][i%3]};animation-delay:${Math.random()*1.5}s;--giro:${Math.random()*720}deg`;
+    capa.append(papel);
+  }
+  document.body.append(capa); setTimeout(() => capa.remove(),6500);
+}
+function mostrarFinal(contenido) {
+  const jugadores = [...estado.participantes].sort((a,b) => b.puntos-a.puntos || a.nombre.localeCompare(b.nombre,"es"));
+  const puesto = p => 1 + jugadores.filter(o => o.puntos > p.puntos).length;
+  const ganadores = jugadores.filter(p => p.puntos > 0 && puesto(p) === 1);
+  contenido.append(elemento("h3",!ganadores.length ? "Sin votos registrados" : ganadores.length > 1 ? "🏆 Primer puesto compartido" : "🏆 El soundtrack ganador"));
+  contenido.append(elemento("p",ganadores.map(p=>p.nombre).join(" · "),"nombres-ganadores"));
+  const podio = elemento("div",undefined,"podio");
+  podio.setAttribute("aria-label","Podio de resultados");
+  for (const indice of [1,0,2]) {
+    const p = jugadores[indice]; if (!p) continue;
+    const bloque = elemento("div",undefined,"escalon escalon-"+indice+(p.soy_yo?" eres-tu":""));
+    bloque.append(elemento("span",puesto(p)===1 && p.puntos>0 ? "♛" : "♫","corona"),
+      elemento("span",p.nombre.slice(0,2).toLocaleUpperCase(),"avatar-podio"),
+      elemento("strong",p.nombre+(p.soy_yo?" (tú)":"")),
+      elemento("span",p.puntos+" puntos","puntos-podio"),elemento("span",String(puesto(p)),"numero-podio"));
+    podio.append(bloque);
+  }
+  contenido.append(podio);
+  const tabla = elemento("ol",undefined,"ranking"); tabla.setAttribute("aria-label","Clasificación completa");
+  for (const p of jugadores) {
+    const fila = elemento("li",undefined,p.soy_yo?"fila-tu":"");
+    fila.append(elemento("span",puesto(p)+"º","posicion"),elemento("strong",p.nombre+(p.soy_yo?" (tú)":"")),elemento("span",p.puntos+" pts","puntos-ranking"));
+    tabla.append(fila);
+  }
+  contenido.append(tabla);
+  if (ganadores.length > 1) contenido.append(elemento("p","Los empates comparten puesto.","nota"));
+  celebrar(ganadores);
+  const temas = ganadores.map(p => ({p,propuesta:estado.propuestas.find(o=>o.autor===p.nombre)})).filter(t=>t.propuesta && VIDEOS[t.propuesta.cancion_id]);
+  const clave = estado.codigo+":"+temas.map(t=>t.propuesta.cancion_id).join(",");
+  if (musicaClave === clave) return;
+  limpiarFinal(); musicaClave = clave;
+  if (!temas.length) return;
+  const panel = $("musica-final"); panel.hidden = false;
+  panel.append(elemento("p","EL ENCORE DEL DUELO","categoria"),elemento("h2",temas.length>1?"Las canciones de los ganadores":"La canción del ganador"),
+    elemento("p","La elección de la última ronda. Disponible para todos los participantes."));
+  temas.forEach(({p,propuesta},i) => {
+    const tema = cancion(propuesta.cancion_id), video = VIDEOS[tema.id];
+    panel.append(elemento("h3",tema.titulo+" — "+tema.artista),elemento("p","Elegida por "+p.nombre,"nota"));
+    const reproductor = elemento("iframe",undefined,"reproductor-final");
+    reproductor.title = tema.titulo+" — reproductor de YouTube";
+    reproductor.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    reproductor.referrerPolicy = "strict-origin-when-cross-origin";
+    reproductor.src = "https://www.youtube-nocookie.com/embed/"+video+"?autoplay="+(i===0?1:0)+"&playsinline=1&rel=0";
+    reproductor.setAttribute("allowfullscreen","");
+    panel.append(reproductor);
+    const enlace = elemento("a","Abrir en YouTube"); enlace.href = "https://www.youtube.com/watch?v="+video; enlace.target = "_blank"; enlace.rel = "noopener noreferrer";
+    panel.append(enlace);
+  });
+  panel.append(elemento("p","Si no suena automáticamente, toca ▶ en el reproductor. Puedes ajustar el volumen o pausar. En un empate, reproduce las demás canciones cuando quieras.","nota"));
+}
 const mensaje = (texto = "") => {
   $("mensaje").textContent = texto;
   $("mensaje").hidden = !texto;
@@ -87,6 +161,8 @@ async function ejecutar(accion, opciones = {}) {
     while (consultando) await new Promise(r => setTimeout(r,40));
     const respuesta = await solicitar(accion,opciones);
     if (respuesta.salio) {
+      limpiarFinal();
+      document.querySelector(".confeti")?.remove();
       codigoSala = ""; sessionStorage.removeItem("duelo-sala");
       estado = null; revisionVista = ""; plazoLocal = null;
       $("inicio").hidden = false; $("juego").hidden = true;
@@ -114,6 +190,7 @@ function aplicarEstado(datos) {
 }
 function renderizar() {
   if (!estado) return;
+  if (estado.estado !== "finalizada" && musicaClave) limpiarFinal();
   $("inicio").hidden = true; $("juego").hidden = false;
   $("codigo-sala").textContent = estado.codigo;
   $("etapa").textContent = ETAPAS[estado.estado] +
@@ -130,6 +207,7 @@ function renderizar() {
   const firma = JSON.stringify({
     etapa:estado.estado,ronda:estado.ronda,propia:propia?.id,
     yaVote:estado.ya_vote,propuestas:estado.propuestas,
+    jugadores:estado.estado === "finalizada" ? estado.participantes : null,
     ocupadas:[...cancionesOcupadas]
   });
   if (estado.estado === "espera") {
@@ -225,15 +303,7 @@ function renderizar() {
         contenido.append(tarjeta);
       }
     } else if (estado.estado === "finalizada") {
-      const jugadores = estado.participantes;
-      const maximo = Math.max(...jugadores.map(p => p.puntos));
-      const ganadores = jugadores.filter(p => p.puntos === maximo).map(p => p.nombre);
-      contenido.append(elemento("h3",ganadores.length>1
-        ? "🏆 Empate: "+ganadores.join(", ") : "🏆 Ganador: "+ganadores[0]));
-      for (const p of jugadores) {
-        const puesto = 1+jugadores.filter(otro => otro.puntos>p.puntos).length;
-        contenido.append(elemento("p",puesto+". "+p.nombre+" — "+p.puntos+" puntos"));
-      }
+      mostrarFinal(contenido);
     }
   }
   actualizarBotones(); dibujarTiempo();
@@ -295,4 +365,3 @@ async function conectar() {
   }
 }
 conectar();
-
