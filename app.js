@@ -6,22 +6,70 @@ const db = createClient(
 );
 const $ = id => document.getElementById(id);
 const CANCIONES = [
-  {id:"c01",titulo:"Vivir mi vida",artista:"Marc Anthony"},
-  {id:"c02",titulo:"Danza Kuduro",artista:"Don Omar, Lucenzo"},
-  {id:"c03",titulo:"Titanium",artista:"David Guetta, Sia"},
-  {id:"c04",titulo:"Don't Stop Me Now",artista:"Queen"},
-  {id:"c05",titulo:"La vida es un carnaval",artista:"Celia Cruz"},
-  {id:"c06",titulo:"A Sky Full of Stars",artista:"Coldplay"},
-  {id:"c07",titulo:"Blinding Lights",artista:"The Weeknd"},
-  {id:"c08",titulo:"Mr. Brightside",artista:"The Killers"},
-  {id:"c09",titulo:"Me rehúso",artista:"Danny Ocean"},
-  {id:"c10",titulo:"Wake Me Up",artista:"Avicii"},
-  {id:"c11",titulo:"Otro atardecer",artista:"Bad Bunny, The Marías"},
-  {id:"c12",titulo:"Lamento boliviano",artista:"Enanitos Verdes"}
+  {
+    "id": "c01",
+    "titulo": "Monkeys Spinning Monkeys",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c02",
+    "titulo": "Sneaky Snitch",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c03",
+    "titulo": "Fluffing a Duck",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c04",
+    "titulo": "Carefree",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c05",
+    "titulo": "Investigations",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c06",
+    "titulo": "Hyperfun",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c07",
+    "titulo": "Local Forecast - Elevator",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c08",
+    "titulo": "Wallpaper",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c09",
+    "titulo": "Who Likes to Party",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c10",
+    "titulo": "Sneaky Adventure",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c11",
+    "titulo": "The Builder",
+    "artista": "Kevin MacLeod"
+  },
+  {
+    "id": "c12",
+    "titulo": "Marty Gots a Plan",
+    "artista": "Kevin MacLeod"
+  }
 ];
 const CONSIGNAS = [
   "Una canción para animar una fiesta",
-  "Una canción para cantar a todo pulmón",
+  "Una canción para una escena divertida",
   "Una canción para un viaje con amigos"
 ];
 const ETAPAS = {
@@ -33,11 +81,11 @@ let estado = null, codigoSala = "", listo = false, ocupado = false;
 let consultando = false, revisionVista = "", plazoLocal = null;
 const cancionesOcupadas = new Set();
 let turnoOcupadas = "";
-const VIDEOS = {c01:"YXnjy5YlDwk",c02:"7zp1TbLFPp8",c03:"JRfuAukYTKg",c04:"HgzGwKwLmgM",c05:"t8pjh1URlXs",c06:"VPRjCeoBqrI",c07:"4NRXx6U8ABQ",c08:"gGdGFtwCNBE",c09:"aZx5zfkG6oU",c10:"IcrbM1l_BoI",c11:"VBiNZcH27Y8",c12:"hReAuaAuJOE"};
 let musicaClave = "";
 const celebradas = new Set();
 
 function limpiarFinal() {
+  detenerAudio(); siguienteAudio = null;
   $("musica-final").replaceChildren(); $("musica-final").hidden = true;
   musicaClave = "";
 }
@@ -84,28 +132,21 @@ function mostrarFinal(contenido) {
   contenido.append(tabla);
   if (ganadores.length > 1) contenido.append(elemento("p","Los empates comparten puesto.","nota"));
   celebrar(ganadores);
-  const temas = ganadores.map(p => ({p,propuesta:estado.propuestas.find(o=>o.autor===p.nombre)})).filter(t=>t.propuesta && VIDEOS[t.propuesta.cancion_id]);
+  const temas = ganadores.map(p => ({p,propuesta:estado.propuestas.find(o=>o.autor===p.nombre)})).filter(t=>t.propuesta);
   const clave = estado.codigo+":"+temas.map(t=>t.propuesta.cancion_id).join(",");
   if (musicaClave === clave) return;
   limpiarFinal(); musicaClave = clave;
   if (!temas.length) return;
   const panel = $("musica-final"); panel.hidden = false;
-  panel.append(elemento("p","EL ENCORE DEL DUELO","categoria"),elemento("h2",temas.length>1?"Las canciones de los ganadores":"La canción del ganador"),
-    elemento("p","La elección de la última ronda. Disponible para todos los participantes."));
-  temas.forEach(({p,propuesta},i) => {
-    const tema = cancion(propuesta.cancion_id), video = VIDEOS[tema.id];
-    panel.append(elemento("h3",tema.titulo+" — "+tema.artista),elemento("p","Elegida por "+p.nombre,"nota"));
-    const reproductor = elemento("iframe",undefined,"reproductor-final");
-    reproductor.title = tema.titulo+" — reproductor de YouTube";
-    reproductor.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
-    reproductor.referrerPolicy = "strict-origin-when-cross-origin";
-    reproductor.src = "https://www.youtube-nocookie.com/embed/"+video+"?autoplay="+(i===0?1:0)+"&playsinline=1&rel=0";
-    reproductor.setAttribute("allowfullscreen","");
-    panel.append(reproductor);
-    const enlace = elemento("a","Abrir en YouTube"); enlace.href = "https://www.youtube.com/watch?v="+video; enlace.target = "_blank"; enlace.rel = "noopener noreferrer";
-    panel.append(enlace);
-  });
-  panel.append(elemento("p","Si no suena automáticamente, toca ▶ en el reproductor. Puedes ajustar el volumen o pausar. En un empate, reproduce las demás canciones cuando quieras.","nota"));
+  panel.append(elemento("p","EL ENCORE DEL DUELO","categoria"),elemento("h2",temas.length>1?"El sonido de los ganadores":"El sonido del ganador"),
+    elemento("p","La elección de la última ronda. Suena automáticamente en cada dispositivo."));
+  for (const {p,propuesta} of temas) panel.append(elemento("p",cancion(propuesta.cancion_id).titulo+" · "+p.nombre));
+  panel.append(elemento("p","Preparando música…","estado-audio"),boton("Silenciar / activar sonido",() => { audio.muted = !audio.muted; }));
+  const cola = temas.map(t=>t.propuesta.cancion_id);
+  let indice = 0;
+  siguienteAudio = () => { indice++; if (indice < cola.length) reproducir(cola[indice],false); };
+  reproducir(cola[0],false);
+
 }
 const mensaje = (texto = "") => {
   $("mensaje").textContent = texto;
@@ -156,12 +197,13 @@ async function solicitar(accion, {
 }
 async function ejecutar(accion, opciones = {}) {
   if (ocupado) return;
+  if (["elegir","votar"].includes(accion)) cerrarEscucha();
   ocupado = true; actualizarBotones(); mensaje();
   try {
     while (consultando) await new Promise(r => setTimeout(r,40));
     const respuesta = await solicitar(accion,opciones);
     if (respuesta.salio) {
-      limpiarFinal();
+      cerrarEscucha(); limpiarFinal();
       document.querySelector(".confeti")?.remove();
       codigoSala = ""; sessionStorage.removeItem("duelo-sala");
       estado = null; revisionVista = ""; plazoLocal = null;
@@ -182,6 +224,7 @@ async function ejecutar(accion, opciones = {}) {
 function aplicarEstado(datos) {
   const turno = datos.codigo + ":" + datos.ronda;
   if (turno !== turnoOcupadas) { cancionesOcupadas.clear(); turnoOcupadas = turno; }
+  if (estado && (estado.estado !== datos.estado || estado.ronda !== datos.ronda || estado.codigo !== datos.codigo)) cerrarEscucha();
   estado = datos;
   plazoLocal = datos.fin_etapa
     ? performance.now() + Math.max(0,Date.parse(datos.fin_etapa)-Date.parse(datos.servidor))
@@ -268,10 +311,12 @@ function renderizar() {
             const ocupada = cancionesOcupadas.has(tema.id);
             const motivo = "Esta canción ya fue elegida por otro participante en esta ronda. Selecciona otra.";
             tarjeta.append(elemento("strong",tema.titulo),elemento("p",tema.artista),
-              boton(ocupada ? "Canción ya seleccionada" : "Elegir canción",() => {
-                if (confirm('¿Enviar "'+tema.titulo+'"? No podrás cambiarla.'))
-                  ejecutar("elegir",{valor:tema.id,ronda:rondaVisible});
-              },ocupado || ocupada, ocupada ? motivo : ""));
+              boton(ocupada ? "Canción ya seleccionada" : "Escuchar y elegir",() => abrirEscucha(tema,"elegir",tema.id,rondaVisible),ocupado || ocupada, ocupada ? motivo : ""));
+            tarjeta.tabIndex = 0;
+            tarjeta.setAttribute("role","group");
+            tarjeta.setAttribute("aria-label",tema.titulo+" — toca para escuchar");
+            tarjeta.addEventListener("click",evento => { if (!evento.target.closest("button")) abrirEscucha(tema,"elegir",tema.id,rondaVisible,ocupada ? motivo : ""); });
+            tarjeta.addEventListener("keydown",evento => { if (evento.target === tarjeta && ["Enter"," "].includes(evento.key)) { evento.preventDefault(); abrirEscucha(tema,"elegir",tema.id,rondaVisible,ocupada ? motivo : ""); } });
             if (ocupada) tarjeta.append(elemento("p",motivo,"aviso-regla"));
             catalogo.append(tarjeta);
           }
@@ -293,6 +338,7 @@ function renderizar() {
               ejecutar("votar",{valor:propuesta.id,ronda:rondaVisible});
           },ocupado || propuesta.mia || estado.ya_vote,motivo));
         if (motivo) tarjeta.append(elemento("p",motivo,"aviso-regla"));
+        tarjeta.append(boton("Escuchar canción",() => abrirEscucha(tema,"votar",propuesta.id,rondaVisible,motivo)));
         contenido.append(tarjeta);
       }
     } else if (estado.estado === "resultados") {
@@ -315,6 +361,7 @@ function dibujarTiempo() {
     ? "Siguiente etapa en "+segundos+" s" : segundos+" s";
   $("temporizador").classList.toggle("urgente",estado.estado === "votacion" && segundos<=5);
   if (estado.estado === "votacion" && segundos === 0) {
+    if ($("escucha").open) cerrarEscucha();
     for (const control of $("contenido").querySelectorAll("button")) control.disabled = true;
     $("instrucciones").textContent = "El tiempo para votar terminó. La votación está cerrada; esperando los resultados del servidor.";
   }
@@ -336,6 +383,71 @@ $("iniciar").addEventListener("click",() => ejecutar("iniciar"));
 $("salir").addEventListener("click",() => ejecutar("salir"));
 const invitada = new URLSearchParams(location.search).get("sala");
 if (invitada && /^[A-Za-z0-9]{6}$/.test(invitada)) $("codigo").value = invitada.toUpperCase();
+
+
+// One audio element: previews and the final song can never overlap.
+const audio = new Audio(); audio.preload = "none"; audio.volume = .65;
+let limiteAudio = null, siguienteAudio = null, audioPendiente = false, intentoAudio = 0;
+function estadoAudio(texto) {
+  const destino = $("escucha").open ? $("escucha-estado") : $("musica-final").querySelector(".estado-audio");
+  if (destino) destino.textContent = texto;
+}
+function detenerAudio() {
+  intentoAudio++; audioPendiente = false; audio.pause(); audio.removeAttribute("src"); audio.load(); limiteAudio = null;
+}
+function intentarAudio() {
+  const intento = ++intentoAudio;
+  audio.play().then(() => { if (intento !== intentoAudio) return; audioPendiente = false; estadoAudio("♫ Sonando"+(limiteAudio ? " · fragmento de 20 segundos" : "")); }).catch(error => {
+    if (intento !== intentoAudio || error.name === "AbortError") return;
+    audioPendiente = error.name === "NotAllowedError";
+    estadoAudio(audioPendiente ? "Tu navegador bloqueó el audio. Toca cualquier parte del juego para habilitarlo." : "No se pudo cargar la música. Revisa tu conexión; puedes continuar jugando.");
+  });
+}
+function reproducir(id,fragmento=true) {
+  detenerAudio(); limiteAudio = fragmento ? 20 : null;
+  audio.src = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/"+encodeURIComponent(cancion(id).titulo)+".mp3";
+  estadoAudio("Cargando música…"); intentarAudio();
+}
+audio.addEventListener("timeupdate",() => {
+  if (limiteAudio && audio.currentTime >= limiteAudio) { audio.pause(); estadoAudio("Fragmento terminado. Confirma tu selección o prueba otra canción."); }
+});
+audio.addEventListener("ended",() => { if (!limiteAudio && siguienteAudio) siguienteAudio(); });
+audio.addEventListener("error",() => { if (audio.getAttribute("src")) estadoAudio("No se pudo cargar el audio. Puedes cerrar esta ventana y continuar."); });
+let audioPreparado = false;
+function gestoAudio() {
+  if (audioPendiente) { intentarAudio(); return; }
+  if (audioPreparado) return;
+  audioPreparado = true;
+  if (audio.getAttribute("src")) return;
+  const intento = ++intentoAudio;
+  audio.src = "data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+  audio.play().then(() => {
+    if (intento !== intentoAudio) return;
+    audio.pause(); audio.removeAttribute("src"); audio.load();
+  }).catch(() => { if (intento === intentoAudio) audioPreparado = false; });
+}
+document.addEventListener("pointerdown",gestoAudio,true);
+document.addEventListener("keydown",gestoAudio,true);
+function cerrarEscucha() {
+  if ($("escucha").open) { $("escucha").close(); detenerAudio(); }
+}
+function abrirEscucha(tema,accion,valor,ronda,motivo="") {
+  if (!estado || estado.ronda !== ronda || !["seleccion","votacion"].includes(estado.estado)) return;
+  if (estado.estado === "votacion" && plazoLocal !== null && performance.now() >= plazoLocal) return;
+  $("escucha-titulo").textContent = tema.titulo;
+  $("escucha-artista").textContent = tema.artista;
+  $("escucha-regla").textContent = motivo || (accion === "elegir" ? "Escuchar no confirma tu elección. Al elegirla, la música se detiene. No podrás cambiarla." : "El cronómetro de votación sigue corriendo mientras escuchas.");
+  const acciones = $("escucha-acciones"); acciones.replaceChildren();
+  acciones.append(boton(accion === "elegir" ? "Elegir esta canción" : "Votar por esta canción",() => {
+    if (!estado || estado.ronda !== ronda || estado.estado !== (accion === "elegir" ? "seleccion" : "votacion")) { cerrarEscucha(); return; }
+    cerrarEscucha(); ejecutar(accion,{valor,ronda});
+  },ocupado || !!motivo,motivo));
+  if (!$("escucha").open) $("escucha").showModal();
+  reproducir(tema.id);
+}
+$("cerrar-escucha").addEventListener("click",cerrarEscucha);
+$("escucha").addEventListener("cancel",cerrarEscucha);
+$("escucha").addEventListener("close",() => { if (estado?.estado !== "finalizada") detenerAudio(); });
 
 async function conectar() {
   try {
