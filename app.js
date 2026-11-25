@@ -347,7 +347,7 @@ function renderizar() {
             const ocupada = cancionesOcupadas.has(tema.id);
             const motivo = "Esta canción ya fue elegida por otro participante en esta ronda. Selecciona otra.";
             tarjeta.append(elemento("strong",tema.titulo),elemento("p",tema.artista),
-              boton(ocupada ? "Canción ya seleccionada" : "Escuchar y elegir",() => abrirEscucha(tema,"elegir",tema.id,rondaVisible),ocupado || ocupada, ocupada ? motivo : ""));
+              boton(ocupada ? "Canción ya seleccionada" : "Elegir",() => abrirEscucha(tema,"elegir",tema.id,rondaVisible),ocupado || ocupada, ocupada ? motivo : ""));
             tarjeta.tabIndex = 0;
             tarjeta.setAttribute("role","group");
             tarjeta.setAttribute("aria-label",tema.titulo+" — toca para escuchar");
@@ -488,7 +488,7 @@ function abrirEscucha(tema,accion,valor,ronda,motivo="") {
   $("escucha-artista").textContent = tema.artista;
   $("escucha-regla").textContent = motivo || (accion === "elegir" ? "Escuchar no confirma tu elección. Al elegirla, la música se detiene. No podrás cambiarla." : "El cronómetro de votación sigue corriendo mientras escuchas.");
   const acciones = $("escucha-acciones"); acciones.replaceChildren();
-  acciones.append(boton(accion === "elegir" ? "Elegir esta canción" : "Votar por esta canción",() => {
+  acciones.append(boton(accion === "elegir" ? "Elegir" : "Votar por esta canción",() => {
     if (!estado || estado.ronda !== ronda || estado.estado !== (accion === "elegir" ? "seleccion" : "votacion")) { cerrarEscucha(); return; }
     cerrarEscucha(); ejecutar(accion,{valor,ronda});
   },ocupado || !!motivo,motivo));
