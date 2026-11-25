@@ -8,63 +8,99 @@ const $ = id => document.getElementById(id);
 const CANCIONES = [
   {
     "id": "c01",
-    "titulo": "Monkeys Spinning Monkeys",
-    "artista": "Kevin MacLeod"
+    "titulo": "Only Whispering",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d2/Josh_Woodward_-_Only_Whispering_-_01_-_Only_Whispering.ogg/Josh_Woodward_-_Only_Whispering_-_01_-_Only_Whispering.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Josh_Woodward_-_Only_Whispering_-_01_-_Only_Whispering.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_01_-_Only_Whispering.ogg"
   },
   {
     "id": "c02",
-    "titulo": "Sneaky Snitch",
-    "artista": "Kevin MacLeod"
+    "titulo": "Adventures Of The Deaf Dreamer",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/40/Josh_Woodward_-_Only_Whispering_-_02_-_Adventures_Of_The_Deaf_Dreamer.ogg/Josh_Woodward_-_Only_Whispering_-_02_-_Adventures_Of_The_Deaf_Dreamer.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/4/40/Josh_Woodward_-_Only_Whispering_-_02_-_Adventures_Of_The_Deaf_Dreamer.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_02_-_Adventures_Of_The_Deaf_Dreamer.ogg"
   },
   {
     "id": "c03",
-    "titulo": "Fluffing a Duck",
-    "artista": "Kevin MacLeod"
+    "titulo": "I'll Be Right Behind You, Josephine",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/4/4b/Josh_Woodward_-_Only_Whispering_-_03_-_I%27ll_Be_Right_Behind_You%2C_Josephine.ogg/Josh_Woodward_-_Only_Whispering_-_03_-_I%27ll_Be_Right_Behind_You%2C_Josephine.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Josh_Woodward_-_Only_Whispering_-_03_-_I%27ll_Be_Right_Behind_You%2C_Josephine.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_03_-_I%27ll_Be_Right_Behind_You%2C_Josephine.ogg"
   },
   {
     "id": "c04",
-    "titulo": "Carefree",
-    "artista": "Kevin MacLeod"
+    "titulo": "Postcard From Hell",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/1/10/Josh_Woodward_-_Only_Whispering_-_04_-_Postcard_From_Hell.ogg/Josh_Woodward_-_Only_Whispering_-_04_-_Postcard_From_Hell.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/1/10/Josh_Woodward_-_Only_Whispering_-_04_-_Postcard_From_Hell.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_04_-_Postcard_From_Hell.ogg"
   },
   {
     "id": "c05",
-    "titulo": "Investigations",
-    "artista": "Kevin MacLeod"
+    "titulo": "To Lose The War",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/53/Josh_Woodward_-_Only_Whispering_-_05_-_To_Lose_The_War.ogg/Josh_Woodward_-_Only_Whispering_-_05_-_To_Lose_The_War.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/5/53/Josh_Woodward_-_Only_Whispering_-_05_-_To_Lose_The_War.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_05_-_To_Lose_The_War.ogg"
   },
   {
     "id": "c06",
-    "titulo": "Hyperfun",
-    "artista": "Kevin MacLeod"
+    "titulo": "Sugar On My Tongue",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/05/Josh_Woodward_-_Only_Whispering_-_06_-_Sugar_On_My_Tongue.ogg/Josh_Woodward_-_Only_Whispering_-_06_-_Sugar_On_My_Tongue.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/0/05/Josh_Woodward_-_Only_Whispering_-_06_-_Sugar_On_My_Tongue.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_06_-_Sugar_On_My_Tongue.ogg"
   },
   {
     "id": "c07",
-    "titulo": "Local Forecast - Elevator",
-    "artista": "Kevin MacLeod"
+    "titulo": "Cardinal Brigade",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a3/Josh_Woodward_-_Only_Whispering_-_07_-_Cardinal_Brigade.ogg/Josh_Woodward_-_Only_Whispering_-_07_-_Cardinal_Brigade.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Josh_Woodward_-_Only_Whispering_-_07_-_Cardinal_Brigade.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_07_-_Cardinal_Brigade.ogg"
   },
   {
     "id": "c08",
-    "titulo": "Wallpaper",
-    "artista": "Kevin MacLeod"
+    "titulo": "East Side Bar",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/9/9f/Josh_Woodward_-_Only_Whispering_-_08_-_East_Side_Bar.ogg/Josh_Woodward_-_Only_Whispering_-_08_-_East_Side_Bar.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Josh_Woodward_-_Only_Whispering_-_08_-_East_Side_Bar.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_08_-_East_Side_Bar.ogg"
   },
   {
     "id": "c09",
-    "titulo": "Who Likes to Party",
-    "artista": "Kevin MacLeod"
+    "titulo": "Fool's Gold",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/5/52/Josh_Woodward_-_Only_Whispering_-_09_-_Fool%27s_Gold.ogg/Josh_Woodward_-_Only_Whispering_-_09_-_Fool%27s_Gold.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/5/52/Josh_Woodward_-_Only_Whispering_-_09_-_Fool%27s_Gold.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_09_-_Fool%27s_Gold.ogg"
   },
   {
     "id": "c10",
-    "titulo": "Sneaky Adventure",
-    "artista": "Kevin MacLeod"
+    "titulo": "Fit For A King",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f8/Josh_Woodward_-_Only_Whispering_-_10_-_Fit_For_A_King.ogg/Josh_Woodward_-_Only_Whispering_-_10_-_Fit_For_A_King.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Josh_Woodward_-_Only_Whispering_-_10_-_Fit_For_A_King.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_10_-_Fit_For_A_King.ogg"
   },
   {
     "id": "c11",
-    "titulo": "The Builder",
-    "artista": "Kevin MacLeod"
+    "titulo": "Goodbye To Spring",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/f/f6/Josh_Woodward_-_Only_Whispering_-_11_-_Goodbye_To_Spring.ogg/Josh_Woodward_-_Only_Whispering_-_11_-_Goodbye_To_Spring.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Josh_Woodward_-_Only_Whispering_-_11_-_Goodbye_To_Spring.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_Only_Whispering_-_11_-_Goodbye_To_Spring.ogg"
   },
   {
     "id": "c12",
-    "titulo": "Marty Gots a Plan",
-    "artista": "Kevin MacLeod"
+    "titulo": "I'm Letting Go",
+    "artista": "Josh Woodward",
+    "audio": "https://upload.wikimedia.org/wikipedia/commons/transcoded/0/05/Josh_Woodward_-_The_Simple_Life%2C_Part_1_-_07_-_Im_Letting_Go.ogg/Josh_Woodward_-_The_Simple_Life%2C_Part_1_-_07_-_Im_Letting_Go.ogg.mp3",
+    "alternativo": "https://upload.wikimedia.org/wikipedia/commons/0/05/Josh_Woodward_-_The_Simple_Life%2C_Part_1_-_07_-_Im_Letting_Go.ogg",
+    "fuente": "https://commons.wikimedia.org/wiki/File:Josh_Woodward_-_The_Simple_Life%2C_Part_1_-_07_-_Im_Letting_Go.ogg"
   }
 ];
 const CONSIGNAS = [
@@ -388,12 +424,13 @@ if (invitada && /^[A-Za-z0-9]{6}$/.test(invitada)) $("codigo").value = invitada.
 // One audio element: previews and the final song can never overlap.
 const audio = new Audio(); audio.preload = "none"; audio.volume = .65;
 let limiteAudio = null, siguienteAudio = null, audioPendiente = false, intentoAudio = 0;
+let inicioFragmento = 0, temaActual = null, usandoAlternativo = false;
 function estadoAudio(texto) {
   const destino = $("escucha").open ? $("escucha-estado") : $("musica-final").querySelector(".estado-audio");
   if (destino) destino.textContent = texto;
 }
 function detenerAudio() {
-  intentoAudio++; audioPendiente = false; audio.pause(); audio.removeAttribute("src"); audio.load(); limiteAudio = null;
+  intentoAudio++; audioPendiente = false; audio.pause(); audio.removeAttribute("src"); audio.load(); limiteAudio = null; temaActual = null; usandoAlternativo = false; inicioFragmento = 0;
 }
 function intentarAudio() {
   const intento = ++intentoAudio;
@@ -405,14 +442,27 @@ function intentarAudio() {
 }
 function reproducir(id,fragmento=true) {
   detenerAudio(); limiteAudio = fragmento ? 20 : null;
-  audio.src = "https://incompetech.com/music/royalty-free/mp3-royaltyfree/"+encodeURIComponent(cancion(id).titulo)+".mp3";
-  estadoAudio("Cargando música…"); intentarAudio();
+  inicioFragmento = fragmento ? 30 : 0; temaActual = cancion(id);
+  audio.src = temaActual.audio;
+  estadoAudio("Cargando canción…"); intentarAudio();
 }
+audio.addEventListener("loadedmetadata",() => {
+  if (limiteAudio && inicioFragmento && Number.isFinite(audio.duration)) {
+    inicioFragmento = Math.min(inicioFragmento,Math.max(0,audio.duration-limiteAudio));
+    audio.currentTime = inicioFragmento;
+  }
+});
 audio.addEventListener("timeupdate",() => {
-  if (limiteAudio && audio.currentTime >= limiteAudio) { audio.pause(); estadoAudio("Fragmento terminado. Confirma tu selección o prueba otra canción."); }
+  if (limiteAudio && audio.currentTime >= inicioFragmento + limiteAudio) { audio.pause(); estadoAudio("Fragmento terminado. Confirma tu selección o prueba otra canción."); }
 });
 audio.addEventListener("ended",() => { if (!limiteAudio && siguienteAudio) siguienteAudio(); });
-audio.addEventListener("error",() => { if (audio.getAttribute("src")) estadoAudio("No se pudo cargar el audio. Puedes cerrar esta ventana y continuar."); });
+audio.addEventListener("error",() => {
+  if (!audio.getAttribute("src") || !temaActual) return;
+  if (!usandoAlternativo && temaActual.alternativo) {
+    usandoAlternativo = true; audio.src = temaActual.alternativo; intentarAudio(); return;
+  }
+  estadoAudio("No se pudo cargar la canción. Revisa tu conexión; puedes continuar jugando.");
+});
 let audioPreparado = false;
 function gestoAudio() {
   if (audioPendiente) { intentarAudio(); return; }
